@@ -6,7 +6,7 @@ from wtforms.validators import InputRequired, Email, Length
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-
+from flask import Response
 
 app = Flask(__name__)
 
@@ -151,10 +151,26 @@ def delete(id):
 
     return redirect(url_for('dashboard'))
 
+@app.route('/download')
+def download():
+    contacts = current_user.contacts.all()
+    csv=[]
+    csv_headers = '{},{},{},{}\n'.format('name','phone','email','location')
+    csv.append(csv_headers)
+    for i in contacts:
+        csv.append('{},{},{},{}\n'.format(str(i.name),str(i.phone),str(i.email),str(i.location)))
+    csv = ''.join(csv)
+    return Response(
+        csv,
+        mimetype="text/csv",
+        headers={"Content-disposition":
+                 "attachment; filename=contact_data.csv"})
+
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
+    
     return redirect(url_for('index'))
 
 
