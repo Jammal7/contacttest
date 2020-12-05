@@ -152,6 +152,7 @@ def delete(id):
     return redirect(url_for('dashboard'))
 
 @app.route('/download')
+@login_required
 def download():
     contacts = current_user.contacts.all()
     csv=[]
